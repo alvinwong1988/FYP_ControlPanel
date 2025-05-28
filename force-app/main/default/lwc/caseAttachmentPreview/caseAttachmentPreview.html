@@ -1,0 +1,25 @@
+<template>
+    <lightning-card title="Case Attachments" icon-name="standard:attachment">
+        <div class="slds-m-around_medium">
+            <template if:true={files}>
+                <template if:true={hasFiles}>
+                    <lightning-datatable key-field="Id" data={files} columns={columns} onrowaction={handleRowAction}
+                        hide-checkbox-column="true">
+                    </lightning-datatable>
+                    <div class="slds-m-top_medium" if:true={previewUrl}>
+                        <div class="slds-box slds-theme_default">
+                            <iframe src={previewUrl} width="100%" height="500px" title="File Preview">
+                            </iframe>
+                        </div>
+                    </div>
+                </template>
+                <template if:false={hasFiles}>
+                    <p>No attachments found for this Case.</p>
+                </template>
+            </template>
+            <template if:true={error}>
+                <p class="slds-text-color_destructive">Error: {error}</p>
+            </template>
+        </div>
+    </lightning-card>
+</template>
