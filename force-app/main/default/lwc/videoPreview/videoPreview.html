@@ -1,0 +1,51 @@
+<template>
+    <lightning-card title="Video Previews">
+        <div class="slds-var-p-around_medium">
+            <!-- Loading Spinner -->
+            <template if:false={isLoaded}>
+                <lightning-spinner alternative-text="Loading videos..." size="medium"></lightning-spinner>
+            </template>
+
+            <!-- Error Message -->
+            <template if:true={error}>
+                <div class="slds-text-color_error slds-var-m-bottom_medium">
+                    Error loading videos: {error}
+                </div>
+            </template>
+
+            <!-- No Videos Message -->
+            <template if:true={noVideos}>
+                <div class="slds-text-body_regular slds-var-m-bottom_medium">
+                    No videos found for this record.
+                </div>
+            </template>
+
+            <!-- Video List -->
+            <template if:true={isLoaded}>
+                <div class="slds-grid slds-wrap slds-grid_pull-padded">
+                    <template for:each={videos} for:item="video">
+                        <div key={video.contentVersionId} class="slds-col slds-size_1-of-1 slds-padded">
+                            <div class="slds-box slds-box_large slds-theme_shade">
+                                <div class="slds-text-heading_small slds-var-m-bottom_small">
+                                    {video.title}
+                                </div>
+                                <div class="video-container">
+                                    <video src={video.fileUrl} controls class="slds-video-player"
+                                        data-id={video.contentVersionId} onloadstart={handleVideoLoad}
+                                        onerror={handleVideoError} style="max-height: 200px; width: 100%;">
+                                        Your browser does not support the video tag or the file format.
+                                    </video>
+                                </div>
+                                <div class="slds-text-body_small slds-var-m-top_small">
+                                    <span>Uploaded: <lightning-formatted-date-time
+                                            value={video.createdDate}></lightning-formatted-date-time></span><br />
+                                    <span>Size: {video.fileSize}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>

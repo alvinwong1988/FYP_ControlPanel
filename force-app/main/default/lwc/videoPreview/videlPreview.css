@@ -1,0 +1,20 @@
+.video-container {
+    position: relative;
+    width: 100%;
+    min-width: 300px;
+    max-width: 500px;
+    height: auto;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #000;
+}
+
+.slds-video-player {
+    object-fit: contain;
+}
+
+.slds-video-player::-webkit-media-controls {
+    z-index: 1;
+}

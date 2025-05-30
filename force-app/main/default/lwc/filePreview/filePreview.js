@@ -1,4 +1,8 @@
-
+/*
+    @author Gil Avignon
+    @date 2020-05-10
+    @description File Preview Client-side Controller for Attachments
+*/
 import { LightningElement, track, wire, api } from 'lwc';
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { NavigationMixin } from 'lightning/navigation';
@@ -20,7 +24,7 @@ export default class FilePreview extends NavigationMixin(LightningElement) {
     @track fids = '';
     @track sortIcon = 'utility:arrowdown';
     @track sortOrder = 'DESC';
-    @track sortField = 'Name'; // Updated to Attachment field
+    @track sortField = 'CreatedDate'; // Updated to Attachment field
     @track disabled = true;
     @track filters = [
         {

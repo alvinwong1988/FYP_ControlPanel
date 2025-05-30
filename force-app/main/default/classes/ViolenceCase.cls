@@ -14,14 +14,13 @@ global without sharing class ViolenceCase {
             // Create a new Case record
             Case newCase = new Case();
             
-            // Link to Account if provided
+            // Link to Camera if provided
             if (String.isNotBlank(req.Carema)) {
-                Carema__c camera = [SELECT Id FROM Carema__c WHERE CaremaID__c = :req.Carema LIMIT 1];
-                if (camera!=null) {
-                    newCase.Camera__c = camera.Id;
+                List<Carema__c> cameraList = [SELECT Id FROM Carema__c WHERE CaremaID__c = :req.Carema LIMIT 1];
+                if (!cameraList.isEmpty()) {
+                    newCase.Camera__c = cameraList[0].Id;
                 }
             }
-
             
             newCase.Subject = 'Violence Case Reported';
             newCase.Description = req.Description;
@@ -29,7 +28,6 @@ global without sharing class ViolenceCase {
             newCase.Status = 'New';
             newCase.Priority = 'High';
             newCase.IssueDateTime__c = DateTime.valueOf(req.IssueDateTime.replace('T', ' '));
-            //newCase.Camera__c = req.Carema; // Custom field for Camera
             newCase.Location__c = req.Location; // Custom field for Location
             
             // Link to Account if provided
@@ -62,6 +60,34 @@ global without sharing class ViolenceCase {
                 }
             }
             
+            // Save video clip if provided
+            if (String.isNotBlank(req.videoClip) && String.isNotBlank(req.videoClipName)) {
+                try {
+                    ContentVersion videoCv = new ContentVersion();
+                    videoCv.VersionData = EncodingUtil.base64Decode(req.videoClip);
+                    videoCv.Title = req.videoClipName;
+                    videoCv.PathOnClient = req.videoClipName;
+                    videoCv.ContentLocation = 'S'; // Indicates Salesforce as the storage location
+                    insert videoCv;
+                    
+                    // Retrieve the ContentDocumentId associated with the ContentVersion
+                    videoCv = [SELECT Id, ContentDocumentId FROM ContentVersion WHERE Id = :videoCv.Id LIMIT 1];
+                    
+                    // Create a ContentDocumentLink to relate the video to the Case
+                    if (videoCv.ContentDocumentId != null) {
+                        ContentDocumentLink cdl = new ContentDocumentLink();
+                        cdl.ContentDocumentId = videoCv.ContentDocumentId;
+                        cdl.LinkedEntityId = newCase.Id; // Link to the Case record
+                        cdl.ShareType = 'V'; // Viewer permission (can be 'C' for Collaborator or 'I' for Inferred)
+                        cdl.Visibility = 'AllUsers'; // Visibility setting (can be 'InternalUsers' if needed)
+                        insert cdl;
+                    }
+                } catch (Exception e) {
+                    // Log error but continue with case creation
+                    System.debug('Error saving video clip or creating ContentDocumentLink: ' + e.getMessage());
+                }
+            }
+            
             // Return success response with Case Number
             response.statusCode = 200;
             response.responseBody = Blob.valueOf(JSON.serialize(new ViolenceCaseResponse(newCase.CaseNumber)));
@@ -84,6 +110,8 @@ global without sharing class ViolenceCase {
         public String Description;
         public String Account;
         public String frame;
+        public String videoClip;
+        public String videoClipName;
     }
     
     // Wrapper class for success response
